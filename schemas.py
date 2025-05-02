@@ -1,30 +1,28 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional
 
+
+def user_name_must_not_be_empty(v: str) -> str:
+    if str(v).strip() == "":
+        raise ValueError("Name cannot be empty")
+    return v
+
+def user_id_must_not_be_empty(v: str) -> str:
+    if v is not None and str(v).strip() == "":
+        raise ValueError("Id cannot be empty")
+    return v
 
 class User(BaseModel):
-    id: int
+    id: str
     name: str
 
     class Config:
         from_attributes = True
 
 class UserCreate(BaseModel):
+    id: Optional[str] = None
     name: str
-
-
-class TaskBase(BaseModel):
-    title: str
-    description: Optional[str] = None
-    due_date: Optional[datetime] = None  # New field
-
-class TaskCreate(TaskBase):
-    assignee_ids: List[int]
-
-class Task(TaskBase):
-    id: int
-    assignees: List[User] = []
-
-    class Config:
-        from_attributes = True
+    
+    _validate_id = validator("id")(user_id_must_not_be_empty)
+    _validate_name = validator("name")(user_name_must_not_be_empty)
