@@ -31,7 +31,7 @@ class UserCreate(BaseModel):
 
 
 class TaskBase(BaseModel):
-    id: Annotated[str, Field(description="Unique identifier of the task")]
+    id: Annotated[int, Field(description="Unique identifier of the task")]
     title: Annotated[str, Field(description="Unique title of the task")]
     description: Annotated[str, Field(description="Description of the task")]
     due_date: Annotated[datetime, Field(description="Due date of the task")]

@@ -10,3 +10,21 @@ router = APIRouter()
 def read_tasks(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     db_tasks = db.query(models.Task).offset(skip).limit(limit).all()
     return db_tasks
+
+@router.post("/tasks/", response_model=schemas.TaskBase)
+def create_task(task: schemas.TaskCreate, db: Session = Depends(get_db)):
+    # Title unique constraint check
+    existing_task = db.query(models.Task).filter(models.Task.title == task.title).first()
+    if existing_task:
+        raise HTTPException(status_code=409, detail="Task title already exists")
+    
+    # Create the task in the database
+    db_task = models.Task(title = task.title, description = task.description, due_date = task.due_date)
+    db_assignees = db.query(models.User).filter(models.User.id.in_(task.assignees)).all()
+    if len(db_assignees) != len(task.assignees):
+            raise HTTPException(status_code=400, detail="Some users IDs are invalid.")
+    db_task.assignees = db_assignees
+    db.add(db_task)
+    db.commit()
+    db.refresh(db_task)
+    return db_task
