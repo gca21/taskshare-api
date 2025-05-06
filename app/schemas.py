@@ -28,3 +28,19 @@ class UserCreate(BaseModel):
         Field(description="Unique name of the user"),
         AfterValidator(str_must_not_be_empty)
     ]
+
+
+class TaskBase(BaseModel):
+    id: Annotated[str, Field(description="Unique identifier of the task")]
+    title: Annotated[str, Field(description="Unique title of the task")]
+    description: Annotated[str, Field(description="Description of the task")]
+    due_date: Annotated[datetime, Field(description="Due date of the task")]
+    
+    class Config:
+        from_attributes = True
+
+class TaskCreate(BaseModel):
+    title: Annotated[str, Field(description="Unique title of the task")]
+    description: Annotated[str | None, Field(default="No description provided", description="Description of the task")]
+    due_date: Annotated[datetime | None, Field(description="Due date of the task")]
+    assignees: Annotated[list[str] | None, Field(description="Ids of the users assigned to the task")]
