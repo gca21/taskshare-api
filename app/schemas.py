@@ -1,28 +1,30 @@
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, AfterValidator, Field
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Annotated
+from uuid import uuid4
 
 
-def str_must_not_be_empty(cls, v: str, info) -> str:
+def str_must_not_be_empty(v: str) -> str:
     if v is not None and str(v).strip() == "":
-        raise ValueError(f"{info.field_name} cannot be empty")
+        raise ValueError(f"Value cannot be empty")
     return v
 
-class User(BaseModel):
-    id: str
-    name: str
+class UserBase(BaseModel):
+    id: Annotated[str, Field(description="Unique identifier of the user")]
+    name: Annotated[str, Field(description="Unique name of the user")]
 
     class Config:
         from_attributes = True
 
 class UserCreate(BaseModel):
-    id: Optional[str] = None
-    name: str
+    id: Annotated[
+        str | None,
+        Field(default_factory=lambda: str(uuid4()), description="Unique identifier of the user"),
+        AfterValidator(str_must_not_be_empty)
+    ]
     
-    @field_validator('id')
-    def id_must_not_be_empty(cls, v: str, info) -> str:
-        return str_must_not_be_empty(cls, v, info)
-    
-    @field_validator('name')
-    def name_must_not_be_empty(cls, v: str, info) -> str:
-        return str_must_not_be_empty(cls, v, info)
+    name: Annotated[
+        str, 
+        Field(description="Unique name of the user"),
+        AfterValidator(str_must_not_be_empty)
+    ]
