@@ -33,8 +33,9 @@ class UserCreate(BaseModel):
 class TaskBase(BaseModel):
     id: Annotated[int, Field(description="Unique identifier of the task")]
     title: Annotated[str, Field(description="Unique title of the task")]
-    description: Annotated[str, Field(description="Description of the task")]
-    due_date: Annotated[datetime, Field(description="Due date of the task")]
+    description: Annotated[str | None, Field(default="No description provided", description="Description of the task")]
+    due_date: Annotated[datetime | None, Field(default=None, description="Due date of the task")]
+    assignees: Annotated[list[UserBase] | None, Field(default=[], description="Users assigned to the task")]
     
     class Config:
         from_attributes = True
@@ -42,5 +43,5 @@ class TaskBase(BaseModel):
 class TaskCreate(BaseModel):
     title: Annotated[str, Field(description="Unique title of the task")]
     description: Annotated[str | None, Field(default="No description provided", description="Description of the task")]
-    due_date: Annotated[datetime | None, Field(description="Due date of the task")]
-    assignees: Annotated[list[str] | None, Field(description="Ids of the users assigned to the task")]
+    due_date: Annotated[datetime | None, Field(default=None, description="Due date of the task")]
+    assignees: Annotated[list[UserBase] | None, Field(default=[], description="Users assigned to the task")]
