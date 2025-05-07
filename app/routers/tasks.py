@@ -3,7 +3,7 @@ from app import models, schemas
 from app.dependencies import get_db
 from sqlalchemy.orm import Session
 
-router = APIRouter()
+router = APIRouter(tags=["Tasks"])
 
 
 @router.get("/tasks/", response_model=list[schemas.TaskBase])
