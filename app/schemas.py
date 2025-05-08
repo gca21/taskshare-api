@@ -44,4 +44,4 @@ class TaskCreate(BaseModel):
     title: Annotated[str, Field(description="Unique title of the task")]
     description: Annotated[str | None, Field(default="No description provided", description="Description of the task")]
     due_date: Annotated[datetime | None, Field(default=None, description="Due date of the task")]
-    assignees: Annotated[list[UserBase] | None, Field(default=[], description="Users assigned to the task")]
+    assignees: Annotated[list[str] | None, Field(default=[], description="Users assigned to the task")]

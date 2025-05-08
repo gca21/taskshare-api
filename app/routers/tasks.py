@@ -21,7 +21,7 @@ def create_task(task: schemas.TaskCreate, db: Session = Depends(get_db)):
     # Create the task in the database
     db_task = models.Task(title = task.title, description = task.description, due_date = task.due_date)
     
-    if db_task.assignees:
+    if task.assignees:
         db_assignees = db.query(models.User).filter(models.User.id.in_(task.assignees)).all()
         if len(db_assignees) != len(task.assignees):
                 raise HTTPException(status_code=400, detail="Some users IDs are invalid.")
