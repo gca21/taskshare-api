@@ -34,7 +34,8 @@ def create_task(task: schemas.TaskCreate, db: Session = Depends(get_db)):
     db.refresh(db_task)
     return db_task
 
-@router.delete("/tasks/{task_id}")
+
+@router.delete("/tasks/{task_id}", response_model=schemas.TaskBase)
 def delete_task(task_id: int, db: Session = Depends(get_db)):
     db_task = db.query(models.Task).filter(models.Task.id == task_id).first()
     
