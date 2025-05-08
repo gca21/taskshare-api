@@ -54,7 +54,7 @@ def update_task(task_id: str, task: schemas.TaskCreate, db: Session = Depends(ge
     db.refresh(db_task)
     return db_task
 
-@router.put("/tasks/{task_id}/add-assignee/{user_id}", response_model=schemas.TaskBase)
+@router.post("/tasks/{task_id}/assignee/{user_id}", response_model=schemas.TaskBase)
 def add_assignee(task_id: int, user_id: str, db: Session = Depends(get_db)):
     db_task = db.query(models.Task).filter(models.Task.id == task_id).first()
     
@@ -92,3 +92,23 @@ def read_task_users(task_id: int, db: Session = Depends(get_db)):
     if not db_task:
         raise HTTPException(status_code=404, detail="User not found")
     return db_task.assignees
+
+@router.delete("/tasks/{task_id}/assignee/{user_id}", response_model=schemas.TaskBase)
+def delete_task_assignee(task_id: int, user_id: str, db: Session = Depends(get_db)):
+    db_task = db.query(models.Task).filter(models.Task.id == task_id).first()
+    
+    if db_task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    db_user = db.query(models.User).filter(models.User.id == user_id).first()
+    
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    if db_user not in db_task.assignees:
+        raise HTTPException(status_code=400, detail="User not assigned to the task")
+    
+    db_task.assignees.remove(db_user)
+    db.commit()
+    db.refresh(db_task)
+    return db_task
