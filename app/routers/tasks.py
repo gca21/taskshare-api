@@ -34,6 +34,25 @@ def create_task(task: schemas.TaskCreate, db: Session = Depends(get_db)):
     db.refresh(db_task)
     return db_task
 
+@router.put("/tasks/{task_id}", response_model=schemas.TaskBase)
+def update_task(task_id: str, task: schemas.TaskCreate, db: Session = Depends(get_db)):
+    db_task = db.query(models.Task).filter(models.Task.id == task_id).first()
+    
+    if db_task is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Title unique constraint check
+    existing_task = db.query(models.Task).filter(models.Task.title == task.title).first()
+    if existing_task:
+        raise HTTPException(status_code=409, detail="Task title already exists")
+    
+    db_task.title = task.title
+    db_task.description = task.description
+    db_task.due_date = task.due_date
+    db_task.assignees = task.assignees
+    db.commit()
+    db.refresh(db_task)
+    return db_task
 
 @router.delete("/tasks/{task_id}", response_model=schemas.TaskBase)
 def delete_task(task_id: int, db: Session = Depends(get_db)):
